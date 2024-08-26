@@ -8,31 +8,37 @@ Description: Responsible for acquiring raw data from the source.
 Input: Raw wafer images or data.
 Output: Processed data for validation and transformation.
 Tools: Custom scripts or ETL tools.
+
 2.2 Data Validation
 Description: Ensures the data meets quality standards and is free from errors.
 Input: Raw data.
 Output: Validated and cleaned data.
 Tools: Python scripts for validation checks.
+
 2.3 Data Transformation
 Description: Transforms raw data into a suitable format for analysis and modeling.
 Input: Validated data.
 Output: Transformed data.
 Tools: Pandas, NumPy.
+
 2.4 Model Training
 Description: Involves training machine learning models on the transformed data.
 Input: Transformed training data.
 Output: Trained models.
 Tools: Scikit-learn, TensorFlow, PyTorch.
+
 2.5 Model Evaluation
 Description: Evaluates model performance using metrics and validation techniques.
 Input: Trained models, test data.
 Output: Model evaluation metrics and the best-performing model.
 Tools: Scikit-learn, Matplotlib (for visualizing metrics).
+
 2.6 Prediction
 Description: Uses the trained model to make predictions on new or unseen data.
 Input: New wafer data.
 Output: Fault classification results.
 Tools: Model inference scripts.
+
 2.7 Logging
 Description: Captures logs for tracking the process and debugging issues.
 Input: System activities and errors.
