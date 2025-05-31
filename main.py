@@ -15,6 +15,10 @@ os.putenv('LC_ALL', 'en_US.UTF-8')
 app = Flask(__name__)
 CORS(app)
 
+@app.route("/health", methods=['GET'])
+def health():
+    return Response("Server is running!")
+    
 @app.route("/", methods=['GET'])
 @cross_origin()
 def home():
