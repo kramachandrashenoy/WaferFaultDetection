@@ -5,23 +5,11 @@ import numpy as np
 import os
 
 class KMeansClustering:
-    """
-    This class shall be used to divide the data into clusters before training.
-    Written By: iNeuron Intelligence
-    Version: 1.0
-    Revisions: Optimized elbow_plot for Render, removed plotting
-    """
     def __init__(self, file_object, logger_object):
         self.file_object = file_object
         self.logger_object = logger_object
 
     def elbow_plot(self, data):
-        """
-        Method Name: elbow_plot
-        Description: Determines the optimum number of clusters using the elbow method.
-        Output: Number of clusters
-        On Failure: Raise Exception
-        """
         self.logger_object.log(self.file_object, 'Entered elbow_plot')
         wcss = []
         try:
@@ -35,12 +23,10 @@ class KMeansClustering:
                 wcss.append(kmeans.inertia_)
                 self.logger_object.log(self.file_object, f'WCSS for {i} clusters: {kmeans.inertia_}')
             
-            # Ensure preprocessing_data directory exists
             os.makedirs('preprocessing_data', exist_ok=True)
             
-            # Find optimal clusters using KneeLocator
             self.kn = KneeLocator(range(1, max_clusters + 1), wcss, curve='convex', direction='decreasing')
-            number_of_clusters = self.kn.knee if self.kn.knee else 2  # Default to 2 if no knee
+            number_of_clusters = self.kn.knee if self.kn.knee else 2
             print(f"Selected {number_of_clusters} clusters")
             self.logger_object.log(self.file_object, f'Optimal clusters: {number_of_clusters}')
             return number_of_clusters
@@ -49,12 +35,6 @@ class KMeansClustering:
             raise
 
     def create_clusters(self, data, number_of_clusters):
-        """
-        Method Name: create_clusters
-        Description: Create a new dataframe with cluster information.
-        Output: DataFrame with cluster column
-        On Failure: Raise Exception
-        """
         self.logger_object.log(self.file_object, 'Entered create_clusters')
         self.data = data
         try:
@@ -68,7 +48,7 @@ class KMeansClustering:
             return self.data
         except Exception as e:
             self.logger_object.log(self.file_object, f'Error in create_clusters: {str(e)}')
-            raise 
+            raise
 # import matplotlib.pyplot as plt
 # from sklearn.cluster import KMeans
 # from kneed import KneeLocator
