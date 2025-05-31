@@ -5,23 +5,11 @@ from sklearn.decomposition import PCA
 import os
 
 class Preprocessor:
-    """
-    This class shall be used to clean and transform the data before training.
-    Written By: iNeuron Intelligence
-    Version: 1.0
-    Revisions: Added PCA and directory creation
-    """
     def __init__(self, file_object, logger_object):
         self.file_object = file_object
         self.logger_object = logger_object
 
     def remove_columns(self, data, columns):
-        """
-        Method Name: remove_columns
-        Description: Removes the given columns from a pandas dataframe.
-        Output: DataFrame after removing columns
-        On Failure: Raise Exception
-        """
         self.logger_object.log(self.file_object, 'Entered remove_columns')
         try:
             useful_data = data.drop(labels=columns, axis=1)
@@ -32,12 +20,6 @@ class Preprocessor:
             raise
 
     def separate_label_feature(self, data, label_column_name):
-        """
-        Method Name: separate_label_feature
-        Description: Separates features and label column.
-        Output: Features (X) and label (Y) DataFrames
-        On Failure: Raise Exception
-        """
         self.logger_object.log(self.file_object, 'Entered separate_label_feature')
         try:
             X = data.drop(labels=label_column_name, axis=1)
@@ -49,12 +31,6 @@ class Preprocessor:
             raise
 
     def is_null_present(self, data):
-        """
-        Method Name: is_null_present
-        Description: Checks if null values are present in the DataFrame.
-        Output: True if nulls present, False otherwise
-        On Failure: Raise Exception
-        """
         self.logger_object.log(self.file_object, 'Entered is_null_present')
         try:
             null_present = False
@@ -76,12 +52,6 @@ class Preprocessor:
             raise
 
     def impute_missing_values(self, data):
-        """
-        Method Name: impute_missing_values
-        Description: Imputes missing values using KNNImputer.
-        Output: DataFrame with imputed values
-        On Failure: Raise Exception
-        """
         self.logger_object.log(self.file_object, 'Entered impute_missing_values')
         try:
             imputer = KNNImputer(n_neighbors=3, weights='uniform', missing_values=np.nan)
@@ -94,12 +64,6 @@ class Preprocessor:
             raise
 
     def get_columns_with_zero_std_deviation(self, data):
-        """
-        Method Name: get_columns_with_zero_std_deviation
-        Description: Finds columns with zero standard deviation.
-        Output: List of columns with zero std dev
-        On Failure: Raise Exception
-        """
         self.logger_object.log(self.file_object, 'Entered get_columns_with_zero_std_deviation')
         try:
             data_n = data.describe()
@@ -114,12 +78,6 @@ class Preprocessor:
             raise
 
     def reduce_dimensions(self, data, n_components=50):
-        """
-        Method Name: reduce_dimensions
-        Description: Reduces data dimensionality using PCA.
-        Output: DataFrame with reduced features
-        On Failure: Raise Exception
-        """
         self.logger_object.log(self.file_object, 'Entered reduce_dimensions')
         try:
             print(f"Applying PCA with {n_components} components")
