@@ -92,6 +92,11 @@ def trainRouteClient():
         return Response("Error Occurred! %s" % e)
     return Response("Training successfull!!")
 
+
+@app.route("/test", methods=['POST'])
+@cross_origin()
+def testRoute():
+    return Response("Test endpoint works!")
 # port = int(os.getenv("PORT",5000))
 # if __name__ == "__main__":
 #     host = '0.0.0.0'
