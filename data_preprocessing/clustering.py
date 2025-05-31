@@ -69,8 +69,7 @@ class KMeansClustering:
         except Exception as e:
             self.logger_object.log(self.file_object, f'Error in create_clusters: {str(e)}')
             raise
-
-
+            
 # import matplotlib.pyplot as plt
 # from sklearn.cluster import KMeans
 # from kneed import KneeLocator
