@@ -9,12 +9,6 @@ import os
 import numpy as np
 
 class trainModel:
-    """
-    This class shall be used to train the model on the dataset.
-    Written By: iNeuron Intelligence
-    Version: 1.0
-    Revisions: Added debug logging, label encoding, data shape logging, and PCA
-    """
     def __init__(self):
         self.log_writer = logger.App_Logger()
         self.file_object = open("Training_Logs/ModelTrainingLog.txt", 'a+')
@@ -24,58 +18,48 @@ class trainModel:
             print("Starting trainingModel")
             self.log_writer.log(self.file_object, 'Start of Training')
 
-            # Getting the data
             print("Loading data")
             data_getter = data_loader.Data_Getter(self.file_object, self.log_writer)
             data = data_getter.get_data()
             print("Data loaded successfully")
             self.log_writer.log(self.file_object, 'Data loaded successfully')
 
-            """Doing the data preprocessing"""
             preprocessor = preprocessing.Preprocessor(self.file_object, self.log_writer)
             print("Removing column 'Wafer'")
             data = preprocessor.remove_columns(data, ['Wafer'])
 
-            # Create separate features and labels
             print("Separating features and labels")
             X, Y = preprocessor.separate_label_feature(data, label_column_name='Output')
             print("Encoding labels from [-1, 1] to [0, 1]")
             Y = np.where(Y == -1, 0, 1)
             self.log_writer.log(self.file_object, 'Feature and label separation completed')
 
-            # Check for missing values
             print("Checking for null values")
             is_null_present = preprocessor.is_null_present(X)
             self.log_writer.log(self.file_object, f'Null values present: {is_null_present}')
 
-            # Impute missing values
             if is_null_present:
                 print("Imputing missing values")
                 X = preprocessor.impute_missing_values(X)
                 self.log_writer.log(self.file_object, 'Missing values imputed')
 
-            # Check for zero standard deviation columns
             print("Checking for zero standard deviation columns")
             cols_to_drop = preprocessor.get_columns_with_zero_std_deviation(X)
             self.log_writer.log(self.file_object, f'Columns with zero std dev: {cols_to_drop}')
 
-            # Drop zero std dev columns
             if cols_to_drop:
                 print(f"Dropping columns: {cols_to_drop}")
                 X = preprocessor.remove_columns(X, cols_to_drop)
                 self.log_writer.log(self.file_object, 'Zero std dev columns dropped')
 
-            # Apply PCA
             print("Applying PCA")
             X = preprocessor.reduce_dimensions(X, n_components=50)
             print(f"Data shape after PCA: {X.shape}")
             self.log_writer.log(self.file_object, f'Data shape after PCA: {X.shape}')
 
-            # Log data shape
             print(f"Data shape before clustering: {X.shape}")
             self.log_writer.log(self.file_object, f'Data shape before clustering: {X.shape}')
 
-            """Applying the clustering approach"""
             print("Starting clustering")
             kmeans = clustering.KMeansClustering(self.file_object, self.log_writer)
             print("Running elbow_plot")
@@ -83,18 +67,15 @@ class trainModel:
             print(f"Optimal number of clusters: {number_of_clusters}")
             self.log_writer.log(self.file_object, f'Optimal number of clusters: {number_of_clusters}')
 
-            # Divide data into clusters
             print(f"Creating {number_of_clusters} clusters")
             X = kmeans.create_clusters(X, number_of_clusters)
             self.log_writer.log(self.file_object, 'Clusters created')
 
-            # Create a new column for cluster assignments
             X['Labels'] = Y
             list_of_clusters = X['Cluster'].unique()
             print(f"Clusters found: {list_of_clusters}")
             self.log_writer.log(self.file_object, f'Clusters: {list_of_clusters}')
 
-            """Training models for each cluster"""
             for i in list_of_clusters:
                 print(f"Processing cluster {i}")
                 cluster_data = X[X['Cluster'] == i]
@@ -102,18 +83,15 @@ class trainModel:
                 cluster_label = cluster_data['Labels']
                 self.log_writer.log(self.file_object, f'Cluster {i} data prepared')
 
-                # Split data
                 print(f"Splitting data for cluster {i}")
                 x_train, x_test, y_train, y_test = train_test_split(cluster_features, cluster_label, test_size=1/3, random_state=355)
                 self.log_writer.log(self.file_object, f'Cluster {i} data split')
 
-                # Find best model
                 print(f"Finding best model for cluster {i}")
                 model_finder = tuner.Model_Finder(self.file_object, self.log_writer)
                 best_model_name, best_model = model_finder.get_best_model(x_train, y_train, x_test, y_test)
                 self.log_writer.log(self.file_object, f'Best model for cluster {i}: {best_model_name}')
 
-                # Save model
                 print(f"Saving model {best_model_name} for cluster {i}")
                 file_op = file_methods.File_Operation(self.file_object, self.log_writer)
                 file_op.save_model(best_model, best_model_name + str(i))
