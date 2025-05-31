@@ -27,7 +27,6 @@ class Model_Finder:
         """
         self.logger_object.log(self.file_object, 'Entered get_best_params_for_random_forest')
         try:
-            # Debug: Log unique labels
             print(f"Random Forest labels: {np.unique(train_y)}")
             self.param_grid = {
                 "n_estimators": [10, 50, 100, 130],
@@ -64,9 +63,7 @@ class Model_Finder:
         """
         self.logger_object.log(self.file_object, 'Entered get_best_params_for_xgboost')
         try:
-            # Debug: Log unique labels
             print(f"XGBoost labels: {np.unique(train_y)}")
-            # Fallback: Encode [-1, 1] to [0, 1]
             if set(np.unique(train_y)) == {-1, 1}:
                 print("Encoding labels from [-1, 1] to [0, 1] for XGBoost")
                 train_y = np.where(train_y == -1, 0, 1)
@@ -102,7 +99,6 @@ class Model_Finder:
         """
         self.logger_object.log(self.file_object, 'Entered get_best_model')
         try:
-            # Debug: Log unique labels
             print(f"get_best_model train labels: {np.unique(train_y)}")
             print(f"get_best_model test labels: {np.unique(test_y)}")
             self.xgboost = self.get_best_params_for_xgboost(train_x, train_y)
@@ -128,7 +124,6 @@ class Model_Finder:
         except Exception as e:
             self.logger_object.log(self.file_object, f'Error in get_best_model: {str(e)}')
             raise
-
 # from sklearn.ensemble import RandomForestClassifier
 # from sklearn.model_selection import GridSearchCV
 # from xgboost import XGBClassifier
