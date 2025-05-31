@@ -13,7 +13,7 @@ class trainModel:
     This class shall be used to train the model on the dataset.
     Written By: iNeuron Intelligence
     Version: 1.0
-    Revisions: Added debug logging, label encoding, and data shape logging
+    Revisions: Added debug logging, label encoding, data shape logging, and PCA
     """
     def __init__(self):
         self.log_writer = logger.App_Logger()
@@ -64,6 +64,12 @@ class trainModel:
                 print(f"Dropping columns: {cols_to_drop}")
                 X = preprocessor.remove_columns(X, cols_to_drop)
                 self.log_writer.log(self.file_object, 'Zero std dev columns dropped')
+
+            # Apply PCA
+            print("Applying PCA")
+            X = preprocessor.reduce_dimensions(X, n_components=50)
+            print(f"Data shape after PCA: {X.shape}")
+            self.log_writer.log(self.file_object, f'Data shape after PCA: {X.shape}')
 
             # Log data shape
             print(f"Data shape before clustering: {X.shape}")
