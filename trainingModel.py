@@ -11,10 +11,9 @@ import numpy as np
 class trainModel:
     """
     This class shall be used to train the model on the dataset.
-
     Written By: iNeuron Intelligence
     Version: 1.0
-    Revisions: Added debug logging, ensured file paths, and fixed label encoding
+    Revisions: Added debug logging, label encoding, and data shape logging
     """
     def __init__(self):
         self.log_writer = logger.App_Logger()
@@ -22,10 +21,10 @@ class trainModel:
 
     def trainingModel(self):
         try:
-            print("Starting trainingModel")  # Debug log
+            print("Starting trainingModel")
             self.log_writer.log(self.file_object, 'Start of Training')
 
-            # Getting the data from the source
+            # Getting the data
             print("Loading data")
             data_getter = data_loader.Data_Getter(self.file_object, self.log_writer)
             data = data_getter.get_data()
@@ -40,40 +39,45 @@ class trainModel:
             # Create separate features and labels
             print("Separating features and labels")
             X, Y = preprocessor.separate_label_feature(data, label_column_name='Output')
-            # Encode labels from [-1, 1] to [0, 1]
             print("Encoding labels from [-1, 1] to [0, 1]")
             Y = np.where(Y == -1, 0, 1)
             self.log_writer.log(self.file_object, 'Feature and label separation completed')
 
-            # Check if missing values are present
+            # Check for missing values
             print("Checking for null values")
             is_null_present = preprocessor.is_null_present(X)
             self.log_writer.log(self.file_object, f'Null values present: {is_null_present}')
 
-            # If missing values are present, impute them
+            # Impute missing values
             if is_null_present:
                 print("Imputing missing values")
                 X = preprocessor.impute_missing_values(X)
                 self.log_writer.log(self.file_object, 'Missing values imputed')
 
-            # Check for columns with zero standard deviation
+            # Check for zero standard deviation columns
             print("Checking for zero standard deviation columns")
             cols_to_drop = preprocessor.get_columns_with_zero_std_deviation(X)
             self.log_writer.log(self.file_object, f'Columns with zero std dev: {cols_to_drop}')
 
-            # Drop the columns with zero standard deviation
+            # Drop zero std dev columns
             if cols_to_drop:
                 print(f"Dropping columns: {cols_to_drop}")
                 X = preprocessor.remove_columns(X, cols_to_drop)
                 self.log_writer.log(self.file_object, 'Zero std dev columns dropped')
 
+            # Log data shape
+            print(f"Data shape before clustering: {X.shape}")
+            self.log_writer.log(self.file_object, f'Data shape before clustering: {X.shape}')
+
             """Applying the clustering approach"""
             print("Starting clustering")
             kmeans = clustering.KMeansClustering(self.file_object, self.log_writer)
+            print("Running elbow_plot")
             number_of_clusters = kmeans.elbow_plot(X)
+            print(f"Optimal number of clusters: {number_of_clusters}")
             self.log_writer.log(self.file_object, f'Optimal number of clusters: {number_of_clusters}')
 
-            # Divide the data into clusters
+            # Divide data into clusters
             print(f"Creating {number_of_clusters} clusters")
             X = kmeans.create_clusters(X, number_of_clusters)
             self.log_writer.log(self.file_object, 'Clusters created')
@@ -92,18 +96,18 @@ class trainModel:
                 cluster_label = cluster_data['Labels']
                 self.log_writer.log(self.file_object, f'Cluster {i} data prepared')
 
-                # Split data into training and test sets
+                # Split data
                 print(f"Splitting data for cluster {i}")
                 x_train, x_test, y_train, y_test = train_test_split(cluster_features, cluster_label, test_size=1/3, random_state=355)
                 self.log_writer.log(self.file_object, f'Cluster {i} data split')
 
-                # Find the best model
+                # Find best model
                 print(f"Finding best model for cluster {i}")
                 model_finder = tuner.Model_Finder(self.file_object, self.log_writer)
                 best_model_name, best_model = model_finder.get_best_model(x_train, y_train, x_test, y_test)
                 self.log_writer.log(self.file_object, f'Best model for cluster {i}: {best_model_name}')
 
-                # Save the best model
+                # Save model
                 print(f"Saving model {best_model_name} for cluster {i}")
                 file_op = file_methods.File_Operation(self.file_object, self.log_writer)
                 file_op.save_model(best_model, best_model_name + str(i))
@@ -117,8 +121,6 @@ class trainModel:
             self.log_writer.log(self.file_object, f'Unsuccessful End of Training: {str(e)}')
             self.file_object.close()
             raise
-
-
 # from sklearn.model_selection import train_test_split
 # from data_ingestion import data_loader
 # from data_preprocessing import preprocessing
